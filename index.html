@@ -1,43 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | 170_MultiVerse</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-mobile-warning">
+        WebGL builds are not supported on mobile devices.
+      </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">170_MultiVerse</div>
+      </div>
+    </div>
+    <script>
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/_TestBuild.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/_TestBuild.data.gz",
+        frameworkUrl: buildUrl + "/_TestBuild.framework.js.gz",
+        codeUrl: buildUrl + "/_TestBuild.wasm.gz",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "170_MultiVerse",
+        productVersion: "0.1",
+      };
 
-	<head>
-		<meta charset="utf-8" />
-		<title>NovaViewer</title>
-		<meta name="viewport" content="initial-scale=1.0" />
-		<script src="three.min.js"></script>
-		<script src="photo-sphere-viewer.min.js"></script>
-		<style>
-			html, body {
-				margin: 0;
-				width: 100%;
-				height: 100%;
-				overflow: hidden;
-			}
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var mobileWarning = document.querySelector("#unity-mobile-warning");
 
-			#container {
-				width: 100%;
-				height: 100%;
-			}
-		</style>
-	</head>
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+        config.devicePixelRatio = 1;
+        mobileWarning.style.display = "block";
+        setTimeout(() => {
+          mobileWarning.style.display = "none";
+        }, 5000);
+      } else {
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
+      loadingBar.style.display = "block";
 
-	<body>
-		<div id="container"></div>
-
-		<script>
-			var div = document.getElementById('container');
-			var PSV = new PhotoSphereViewer({
-					//panorama: 'http://tassedecafe.org/wp-content/uploads/2013/01/parc-saint-pierre-amiens.jpg',
-					panorama: 'https://raw.githubusercontent.com/nogggg2004/Image360Repo/main/360Image1.jpg',
-					container: div,
-					time_anim: 3000,
-					navbar: true,
-					navbar_style: {
-						backgroundColor: 'rgba(58, 67, 77, 0.7)'
-					},
-				});
-		</script>
-	</body>
-
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+          fullscreenButton.onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
 </html>
